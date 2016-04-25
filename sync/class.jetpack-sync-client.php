@@ -390,7 +390,11 @@ class Jetpack_Sync_Client {
 	}
 
 	function save_term_handler( $term_id, $tt_id, $taxonomy ) {
-		$term_object = WP_Term::get_instance( $term_id, $taxonomy );
+		if ( class_exists( 'WP_Term' ) ) {
+			$term_object = WP_Term::get_instance( $term_id, $taxonomy );
+		} else {
+			$term_object = get_term_by( 'id', $term_id, $taxonomy );
+		}
 		do_action( 'jetapack_sync_save_term', $term_id, $tt_id, $taxonomy, $term_object );
 	}
 
