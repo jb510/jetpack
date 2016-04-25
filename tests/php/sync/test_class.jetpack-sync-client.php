@@ -168,7 +168,7 @@ class WP_Test_Jetpack_New_Sync_Client extends WP_Test_Jetpack_New_Sync_Base {
 
 	function test_never_queues_if_development() {
 
-		add_filter( 'jetpack_development_mode', '__return_false' );
+		add_filter( 'jetpack_development_mode', '__return_true' );
 
 		$queue = $this->client->get_sync_queue();
 		$queue->reset(); // remove any actions that already got queued
