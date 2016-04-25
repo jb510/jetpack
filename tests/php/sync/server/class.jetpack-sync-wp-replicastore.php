@@ -109,7 +109,7 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 
 
 	// meta
-	public function get_metadata( $meta_type, $object_id, $meta_key= '', $single = false ) {
+	public function get_metadata( $meta_type, $object_id, $meta_key = '', $single = false ) {
 		return get_metadata( $meta_type, $object_id, $meta_key, $single );
 	}
 	public function add_metadata( $meta_type, $object_id, $key, $value, $unique = false ) {
