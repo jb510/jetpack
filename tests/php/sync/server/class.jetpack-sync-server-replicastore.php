@@ -12,6 +12,7 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 	private $options;
 	private $theme_support;
 	private $meta;
+	private $meta_filter;
 	private $constants;
 	private $updates;
 	private $callable;
@@ -154,18 +155,11 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 	public function get_metadata( $type, $object_id, $meta_key = '', $single = false ) {
 
 		$object_id = absint( $object_id );
+		$this->meta_filter['type'] = $type;
+		$this->meta_filter['object_id'] = $object_id;
+		$this->meta_filter['meta_key'] = $meta_key;
 
-		$meta_entries = array_values( array_filter( $this->meta, function( $meta ) use ( $type, $object_id, $meta_key ) {
-			// must match object and type
-			$match = ( $type === $meta->type && $object_id === $meta->object_id );
-
-			// match key if given
-			if ( $match && $meta_key ) 
-				$match = ( $meta->meta_key === $meta_key );
-
-			return $match;
-
-		} ) );
+		$meta_entries = array_values( array_filter( $this->meta, array( $this, 'find_meta' ) ) );
 
 		if ( count( $meta_entries ) === 0 ) {
 			// match return signature of WP code
@@ -175,13 +169,28 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
                 return array();
 		}
 
-		$meta_values = array_map( function( $meta ) { return $meta->meta_value; }, $meta_entries );
+		$meta_values = array_map( array( $this, 'get_meta_valued' ), $meta_entries );
 
 		if ( $single ) {
 			return $meta_values[0];
 		}
 
 		return $meta_values;
+	}
+
+	public function find_meta( $meta ) {
+		// must match object and type
+		$match = ( $this->meta_filter['type'] === $meta->type && $this->meta_filter['object_id'] === $meta->object_id );
+
+		// match key if given
+		if ( $match && $this->meta_filter['meta_key'] )
+			$match = ( $meta->meta_key === $this->meta_filter['meta_key'] );
+
+		return $match;
+	}
+
+	public function get_meta_valued( $meta ) {
+		return $meta->meta_value;
 	}
 
 	public function add_metadata( $type, $object_id, $meta_key, $meta_value, $meta_id ) {
