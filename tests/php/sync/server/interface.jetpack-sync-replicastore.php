@@ -74,7 +74,7 @@ interface iJetpack_Sync_Replicastore {
 	public function get_terms( $taxonomy );
 	public function get_the_terms( $object_id, $taxonomy );
 	public function update_term( $taxonomy, $term_object );
-	public function delete_term( $term_id, $taxonomy, $object_ids );
+	public function delete_term( $term_id, $taxonomy );
 
 	// users
 	public function get_user( $user_id );

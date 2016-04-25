@@ -263,7 +263,7 @@ class Jetpack_Sync_Client {
 		add_action( 'created_term', array( $this, 'save_term_handler' ), 10, 3 );
 		add_action( 'edited_term', array( $this, 'save_term_handler' ), 10, 3 );
 		add_action( 'jetapack_sync_save_term', $handler, 10, 4 );
-		add_action( 'delete_term', $handler, 10, 5 );
+		add_action( 'delete_term', $handler, 10, 4 );
 
 		// users
 		add_action( 'user_register', array( $this, 'save_user_handler' ) );

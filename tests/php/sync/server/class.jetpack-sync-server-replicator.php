@@ -168,8 +168,8 @@ class Jetpack_Sync_Server_Replicator {
 				break;
 
 			case 'delete_term':
-				list( $term_id, $tt_id, $taxonomy, $deleted_term_or_error, $object_ids  ) = $args;
-				$this->store->delete_term( $term_id, $taxonomy, $object_ids );
+				list( $term_id, $tt_id, $taxonomy, $deleted_term_or_error  ) = $args;
+				$this->store->delete_term( $term_id, $taxonomy );
 				break;
 			
 			// users

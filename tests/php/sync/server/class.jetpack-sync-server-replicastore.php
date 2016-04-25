@@ -298,7 +298,7 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 		$this->terms[ $taxonomy ] = $terms;
 	}
 
-	function delete_term( $term_id, $taxonomy, $object_ids ) {
+	function delete_term( $term_id, $taxonomy ) {
 		if ( ! isset( $this->terms[ $taxonomy ] ) ) {
 			// empty
 			$this->terms[ $taxonomy ] = array();

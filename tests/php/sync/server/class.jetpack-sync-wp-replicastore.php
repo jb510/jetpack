@@ -174,7 +174,7 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 		// TODO: Implement update_term() method.
 	}
 
-	public function delete_term( $term_id, $taxonomy, $object_ids ) {
+	public function delete_term( $term_id, $taxonomy ) {
 		// TODO: Implement delete_term() method.
 	}
 	// users
