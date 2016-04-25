@@ -48,7 +48,7 @@ interface iJetpack_Sync_Replicastore {
 	public function current_theme_supports( $feature );
 
 	// meta
-	public function get_metadata( $type, $object_id, $meta_key, $single = false );
+	public function get_metadata( $type, $object_id, $meta_key = '', $single = false );
 	public function add_metadata( $type, $object_id, $meta_key, $meta_value, $meta_id );
 	public function update_metadata( $type, $object_id, $meta_key, $meta_value, $meta_id );
 	public function delete_metadata( $meta_ids );
