@@ -220,7 +220,7 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 
 		// check that an update just finished
 		$updates = $this->server_replica_storage->get_updates( 'plugins' );
-		$this->assertTrue( $updates->last_checked > strtotime("-2 seconds") );
+		$this->assertTrue( $updates->last_checked > strtotime("-10 seconds") );
 		
 		delete_site_transient( 'update_plugins' );
 		$this->server_replica_storage->reset();
@@ -234,7 +234,7 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 		$updates = $this->server_replica_storage->get_updates( 'plugins' );
 		error_log(print_r( $updates ) );
 		$this->assertNotNull( $updates );
-		$this->assertTrue( $updates->last_checked > strtotime("-2 seconds"), 'Last checked is less then 2 seconds: ' . $updates->last_checked . ' - lest then 2 sec:' . strtotime( "-2 seconds" ) );
+		$this->assertTrue( $updates->last_checked > strtotime("-10 seconds"), 'Last checked is less then 2 seconds: ' . $updates->last_checked . ' - lest then 10 sec:' . strtotime( "-10 seconds" ) );
 	}
 
 	function test_full_sync_sends_theme_updates() {
@@ -260,7 +260,7 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 
 		$updates = $this->server_replica_storage->get_updates( 'themes' );
 		$this->assertNotNull( $updates );
-		$this->assertTrue( $updates->last_checked > strtotime("-2 seconds") );
+		$this->assertTrue( $updates->last_checked > strtotime("-10 seconds") );
 	}
 
 	function test_full_sync_sends_core_updates() {
@@ -271,7 +271,7 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 
 		// check that an update just finished
 		$updates = $this->server_replica_storage->get_updates( 'core' );
-		$this->assertTrue( $updates->last_checked > strtotime("-2 seconds") );
+		$this->assertTrue( $updates->last_checked > strtotime("-10 seconds") );
 
 		// we need to do this because there's a check for elapsed time since last update
 		// in the wp_update_core() function		
@@ -286,7 +286,7 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 
 		$updates = $this->server_replica_storage->get_updates( 'core' );
 		$this->assertNotNull( $updates );
-		$this->assertTrue( $updates->last_checked > strtotime("-2 seconds") );
+		$this->assertTrue( $updates->last_checked > strtotime("-10 seconds") );
 	}
 
 	function test_full_sync_fires_events_on_send_start_and_end() {
