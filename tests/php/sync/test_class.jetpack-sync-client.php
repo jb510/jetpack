@@ -94,7 +94,7 @@ class WP_Test_Jetpack_New_Sync_Client extends WP_Test_Jetpack_New_Sync_Base {
 
 		// build a codec
 		$codec = $this->getMockBuilder( 'iJetpack_Sync_Codec' )
-				->setMethods( array( 'encode' ) )
+				->setMethods( array( 'encode', 'decode' ) )
 				->getMock();
 		$codec->method( 'encode' )->willReturn( 'foo' );
 
