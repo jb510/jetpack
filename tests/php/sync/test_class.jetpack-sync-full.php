@@ -234,7 +234,7 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 		$updates = $this->server_replica_storage->get_updates( 'plugins' );
 		error_log(print_r( $updates ) );
 		$this->assertNotNull( $updates );
-		$this->assertTrue( $updates->last_checked > strtotime("-2 seconds"), 'Last checked is less then 2 seconds: ' . $updates->last_checked );
+		$this->assertTrue( $updates->last_checked > strtotime("-2 seconds"), 'Last checked is less then 2 seconds: ' . $updates->last_checked . ' - lest then 2 sec:' . strtotime( "-2 seconds" ) );
 	}
 
 	function test_full_sync_sends_theme_updates() {
