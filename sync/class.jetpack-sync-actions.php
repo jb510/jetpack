@@ -7,7 +7,7 @@ if ( is_multisite() ) {
 	require_once 'class.jetpack-sync-network-options.php';
 }
 
-class Jetpack_Sync {
+class Jetpack_Sync_Actions {
 	static $client = null;
 
 	static function init() {
@@ -32,7 +32,7 @@ class Jetpack_Sync {
 		$result = $rpc->query( 'jetpack.syncActions', $data );
 		if ( ! $result ) {
 			$error = $rpc->get_jetpack_error();
-			error_log( $error->get_error_code() . ': ' . $error->get_error_message() );
+			// error_log( $error->get_error_code() . ': ' . $error->get_error_message() );
 		}
 
 		return $result;
@@ -44,4 +44,4 @@ class Jetpack_Sync {
 
 }
 
-Jetpack_Sync::init();
+Jetpack_Sync_Actions::init();
