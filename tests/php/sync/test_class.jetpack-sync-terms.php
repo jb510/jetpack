@@ -40,6 +40,9 @@ class WP_Test_Jetpack_New_Sync_Terms extends WP_Test_Jetpack_New_Sync_Base {
 			'hide_empty' => false,
 		) );
 		$server_terms = $this->server_replica_storage->get_terms( $this->taxonomy );
+		
+		error_log( print_r( $terms ) );
+		error_log( print_r( $server_terms ) );
 
 		$this->assertEquals( $terms, $server_terms );
 	}
