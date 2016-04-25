@@ -8,7 +8,9 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 
 	private $wp_version;
 	private $posts;
+	private $post_status;
 	private $comments;
+	private $comment_status;
 	private $options;
 	private $theme_support;
 	private $meta;
@@ -60,12 +62,15 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	function get_posts( $status = null ) {
-		return array_filter( array_values( $this->posts ), function ( $post ) use ( $status ) {
-			$matched_status = ! in_array( $post->post_status, array( 'inherit' ) )
-			                  && ( $status ? $post->post_status === $status : true );
+		$this->post_status = $status;
+		return array_filter( array_values( $this->posts ), array( $this, 'filter_post_status' ) );
+	}
 
-			return $matched_status;
-		} );
+	function filter_post_status( $post ) {
+		$matched_status = ! in_array( $post->post_status, array( 'inherit' ) )
+		                  && ( $this->post_status ? $post->post_status === $this->post_status : true );
+
+		return $matched_status;
 	}
 
 	function get_post( $id ) {
@@ -85,25 +90,28 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	function get_comments( $status = null ) {
+		$this->comment_status = $status;
 		// valid statuses: 'hold', 'approve', 'spam', or 'trash'.
-		return array_filter( array_values( $this->comments ), function ( $comment ) use ( $status ) {
-			switch ( $status ) {
-				case 'approve':
-					return $comment->comment_approved === "1";
-				case 'hold':
-					return $comment->comment_approved === "0";
-				case 'spam':
-					return $comment->comment_approved === 'spam';
-				case 'trash':
-					return $comment->comment_approved === 'trash';
-				case 'any':
-					return true;
-				case 'all':
-					return true;
-				default:
-					return true;
-			}
-		} );
+		return array_filter( array_values( $this->comments ), array( $this, 'filter_comment_status' ) );
+	}
+
+	function filter_comment_status( $comment ) {
+		switch ( $this->comment_status ) {
+			case 'approve':
+				return $comment->comment_approved === "1";
+			case 'hold':
+				return $comment->comment_approved === "0";
+			case 'spam':
+				return $comment->comment_approved === 'spam';
+			case 'trash':
+				return $comment->comment_approved === 'trash';
+			case 'any':
+				return true;
+			case 'all':
+				return true;
+			default:
+				return true;
+		}
 	}
 
 	function get_comment( $id ) {
