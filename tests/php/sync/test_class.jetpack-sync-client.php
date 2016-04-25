@@ -93,7 +93,9 @@ class WP_Test_Jetpack_New_Sync_Client extends WP_Test_Jetpack_New_Sync_Base {
 	function test_client_allows_optional_codec() {
 
 		// build a codec
-		$codec = $this->getMockBuilder( 'iJetpack_Sync_Codec' )->getMock();
+		$codec = $this->getMockBuilder( 'iJetpack_Sync_Codec' )
+				->setMethods( array( 'encode' ) )
+				->getMock();
 		$codec->method( 'encode' )->willReturn( 'foo' );
 
 		// set it on the client
