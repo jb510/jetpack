@@ -383,7 +383,7 @@ class Jetpack_Sync_Client {
 		global $_wp_theme_features;
 
 		$theme_support = array();
-		
+
 		foreach( self::$default_theme_support_whitelist as $theme_feature ) {
 			$has_support = current_theme_supports( $theme_feature );
 			if ( $has_support ) {
@@ -412,10 +412,18 @@ class Jetpack_Sync_Client {
 
 	function save_user_handler( $user_id, $old_user_data = null ) {
 		$user = get_user_by( 'id', $user_id );
+
+		// Older versions of WP don't pass the old_user_data in ->data
+		if ( isset( $old_user_data->data ) ) {
+			$old_user = $old_user_data->data;
+		} else {
+			$old_user = $old_user_data;
+		}
+
 		unset( $user->data->user_pass );
-		if ( $old_user_data !== null ) {
-			unset( $old_user_data->data->user_pass );
-			if ( serialize( $old_user_data->data ) === serialize( $user->data ) ) {
+		if ( $old_user !== null ) {
+			unset( $old_user->user_pass );
+			if ( serialize( $old_user ) === serialize( $user->data ) ) {
 				return;
 			}
 		}
