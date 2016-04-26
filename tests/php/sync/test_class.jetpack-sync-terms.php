@@ -34,10 +34,7 @@ class WP_Test_Jetpack_New_Sync_Terms extends WP_Test_Jetpack_New_Sync_Base {
 	}
 
 	public function test_insert_term_is_synced() {
-		$terms = get_terms( array(
-			'taxonomy' => $this->taxonomy,
-			'hide_empty' => false,
-		) );
+		$terms = $this->get_terms();
 		$server_terms = $this->server_replica_storage->get_terms( $this->taxonomy );
 		$this->assertEquals( $terms, $server_terms );
 	}
@@ -50,11 +47,7 @@ class WP_Test_Jetpack_New_Sync_Terms extends WP_Test_Jetpack_New_Sync_Base {
 		wp_update_term( $this->term_object['term_id'], $this->taxonomy, $args );
 		$this->client->do_sync();
 
-		$terms = get_terms( array(
-			'taxonomy' => $this->taxonomy,
-			'hide_empty' => false,
-		) );
-
+		$terms = $this->get_terms();
 		$server_terms = $this->server_replica_storage->get_terms( $this->taxonomy );
 		$this->assertEquals( $terms, $server_terms );
 	}
@@ -63,11 +56,7 @@ class WP_Test_Jetpack_New_Sync_Terms extends WP_Test_Jetpack_New_Sync_Base {
 		wp_delete_term( $this->term_object['term_id'], $this->taxonomy );
 		$this->client->do_sync();
 
-		$terms = get_terms( array(
-			'taxonomy' => $this->taxonomy,
-			'hide_empty' => false,
-		) );
-
+		$terms = $this->get_terms();
 		$server_terms = $this->server_replica_storage->get_terms( $this->taxonomy );
 		$this->assertEquals( $terms, $server_terms );
 ;	}
@@ -112,6 +101,28 @@ class WP_Test_Jetpack_New_Sync_Terms extends WP_Test_Jetpack_New_Sync_Base {
 		$server_object_terms = array_reverse( $server_object_terms );
 
 		$this->assertEquals( $object_terms, $server_object_terms );
+	}
+
+	function get_terms() {
+		global $wp_version;
+		if ( version_compare( $wp_version, '4.5', '>=' ) ) {
+			return get_terms( array(
+				'taxonomy' => $this->taxonomy,
+				'hide_empty' => false,
+			) );
+
+		} else {
+			return array_map( array($this, 'upgrade_terms_to_pass_test'), get_terms( $this->taxonomy, array(
+				'hide_empty' => false,
+			) )
+			);
+
+		}
+	}
+
+	function upgrade_terms_to_pass_test( $term ) {
+		$term->filter = 'raw';
+		return $term;
 	}
 
 }
