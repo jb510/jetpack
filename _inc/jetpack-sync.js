@@ -26,7 +26,7 @@ window.JetpackSyncStatus = ( function() {
 			render_progress( selector, initial_state );
 			set_auto_refresh( selector, 2000 );
 		}
-	}
+	};
 } )();
 
 window.JetpackFullSyncButton = ( function() {
@@ -44,5 +44,5 @@ window.JetpackFullSyncButton = ( function() {
 				begin_full_sync();
 			} );
 		}
-	}
+	};
 } )();
