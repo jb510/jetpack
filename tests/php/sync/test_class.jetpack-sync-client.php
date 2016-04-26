@@ -90,28 +90,6 @@ class WP_Test_Jetpack_New_Sync_Client extends WP_Test_Jetpack_New_Sync_Base {
 		$this->assertEquals( true, $this->action_ran );
 	}
 
-	function test_client_allows_optional_codec() {
-
-		// build a codec
-		$codec = $this->getMockBuilder( 'iJetpack_Sync_Codec' )
-				->setMethods( array( 'encode', 'decode' ) )
-				->getMock();
-		$codec->method( 'encode' )->willReturn( 'foo' );
-
-		// set it on the client
-		$this->client->set_codec( $codec );
-
-		// if we don't do this the server will try to decode the dummy data
-		remove_all_actions( 'jetpack_sync_client_send_data' );
-
-		$this->encoded_data = null;
-		add_filter( 'jetpack_sync_client_send_data', array( $this, 'set_encoded_data' ) );
-
-		$this->client->do_sync();
-
-		$this->assertEquals( "foo", $this->encoded_data );
-	}
-
 	function test_clear_actions_on_client() {
 		$this->factory->post->create();
 		$this->assertNotEmpty( $this->client->get_sync_queue()->get_all() );
