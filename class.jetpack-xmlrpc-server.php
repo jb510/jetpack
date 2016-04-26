@@ -34,6 +34,7 @@ class Jetpack_XMLRPC_Server {
 				'jetpack.getComments'       => array( $this, 'get_comments' ),
 				'jetpack.disconnectBlog'    => array( $this, 'disconnect_blog' ),
 				'jetpack.unlinkUser'        => array( $this, 'unlink_user' ),
+				'jetpack.activateManage'    => array( $this, 'activate_manage' ),
 			) );
 
 			if ( isset( $core_methods['metaWeblog.editPost'] ) ) {
@@ -78,6 +79,23 @@ class Jetpack_XMLRPC_Server {
 		return array( 'jetpack.remoteAuthorize' => array( $this, 'remote_authorize' ) );
 	}
 
+	function activate_manage( $request ) {
+		foreach( array( 'secret', 'state' ) as $required ) {
+			if ( ! isset( $request[ $required ] ) || empty( $request[ $required ] ) ) {
+				return $this->error( new Jetpack_Error( 'missing_parameter', 'One or more parameters is missing from the request.', 400 ) );
+			}
+		}
+		$verified = $this->verify_action( array( 'activate_manage', $request['secret'], $request['state'] ) );
+		if ( is_a( $verified, 'IXR_Error' ) ) {
+			return $verified;
+		}
+		$activated = Jetpack::activate_module( 'manage', false, false );
+		if ( false === $activated || ! Jetpack::is_module_active( 'manage' ) ) {
+			return $this->error( new Jetpack_Error( 'activation_error', 'There was an error while activating the module.', 500 ) );
+		}
+		return 'active';
+	}
+
 	function remote_authorize( $request ) {
 		foreach( array( 'secret', 'state', 'redirect_uri', 'code' ) as $required ) {
 			if ( ! isset( $request[ $required ] ) || empty( $request[ $required ] ) ) {
@@ -107,8 +125,15 @@ class Jetpack_XMLRPC_Server {
 		if ( is_wp_error( $result ) ) {
 			return $this->error( $result );
 		}
-		
-		return $result;
+		// Creates a new secret, allowing someone to activate the manage module for up to 10 minutes after authorization.
+		$secrets = Jetpack::init()->generate_secrets( DAY_IN_SECONDS );
+		Jetpack_Options::update_option( 'activate_manage', $secrets[0] . ':' . $secrets[1] . ':' . $secrets[2] . ':' . $secrets[3] );
+		@list( $secret ) = explode( ':', Jetpack_Options::get_option( 'activate_manage' ) );
+		$response = array(
+			'result' => $result,
+			'activate_manage' => $secret,
+		);
+		return $response;
 	}
 
 	/**
