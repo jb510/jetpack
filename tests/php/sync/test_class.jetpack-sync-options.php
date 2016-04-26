@@ -43,14 +43,26 @@ class WP_Test_Jetpack_New_Sync_Options extends WP_Test_Jetpack_New_Sync_Base {
 	}
 
 	public function test_site_icon_is_synced_using_jetpack_function() {
+		global $wp_version;
 		$this->client->set_defaults();
 
-		add_filter( 'get_site_icon_url', array( $this, '_get_site_icon' ), 99, 3 );
-		update_option( 'site_icon', '5' );
+		if ( version_compare( $wp_version, '4.4', '>=' ) ) {
+			$this->client->set_defaults();
 
-		$this->client->do_sync();
+			add_filter( 'get_site_icon_url', array( $this, '_get_site_icon' ), 99, 3 );
+			update_option( 'site_icon', '5' );
 
-		$this->assertEquals( 'http://foo.com/icon.gif', $this->server_replica_storage->get_option( 'jetpack_site_icon_url' ) );
+			$this->client->do_sync();
+
+			$this->assertEquals( 'http://foo.com/icon.gif', $this->server_replica_storage->get_option( 'jetpack_site_icon_url' ) );
+		} else {
+			// wp 4.3 or less
+			Jetpack_Options::update_option( 'site_icon_url', 'http://foo.com/icon.gif' );
+
+			$this->client->do_sync();
+
+			$this->assertEquals( 'http://foo.com/icon.gif', $this->server_replica_storage->get_option( 'jetpack_site_icon_url' ) );
+		}
 	}
 
 	function _get_site_icon( $url, $size, $blog_id ) {
