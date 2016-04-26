@@ -381,7 +381,17 @@ class Jetpack_Sync_Client {
 
 	function send_theme_info() {
 		global $_wp_theme_features;
-		do_action( 'jetpack_sync_current_theme_support', $_wp_theme_features );
+
+		$theme_support = array();
+		
+		foreach( self::$default_theme_support_whitelist as $theme_feature ) {
+			$has_support = current_theme_supports( $theme_feature );
+			if ( $has_support ) {
+				$theme_support[ $theme_feature ] = $_wp_theme_features[ $theme_feature ];
+			}
+
+		}
+		do_action( 'jetpack_sync_current_theme_support', $theme_support );
 	}
 
 	function send_wp_version( $update, $meta_data ) {
