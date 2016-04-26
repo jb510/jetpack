@@ -165,18 +165,28 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 	public function get_terms( $taxonomy ) {
 		// TODO: Implement get_terms() method.
 	}
-
+	public function get_term( $taxonomy, $term_id, $is_term_id = true ) {
+		// TODO: Implement get_term() method.
+	}
 	public function get_the_terms( $object_id, $taxonomy ) {
 		// TODO: Implement get_the_terms() method.
 	}
-
+	public function update_object_terms( $object_id, $taxonomy, $terms, $append ) {
+		// TODO: Implement update_object_terms method.
+	}
 	public function update_term( $taxonomy, $term_object ) {
 		// TODO: Implement update_term() method.
 	}
-
+	public function update_term_count( $taxonomy, $term_id ) {
+		// TODO: Implement update_term_count() method.
+	}
 	public function delete_term( $term_id, $taxonomy ) {
 		// TODO: Implement delete_term() method.
 	}
+	public function delete_object_terms( $object_id, $tt_ids ) {
+		// TODO: Implement delete_object_terms() method.
+	}
+
 	// users
 	public function get_user( $user_id ) {
 		// TODO: Implement get_user() method.

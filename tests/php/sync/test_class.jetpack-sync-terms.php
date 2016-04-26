@@ -34,16 +34,11 @@ class WP_Test_Jetpack_New_Sync_Terms extends WP_Test_Jetpack_New_Sync_Base {
 	}
 
 	public function test_insert_term_is_synced() {
-
 		$terms = get_terms( array(
 			'taxonomy' => $this->taxonomy,
 			'hide_empty' => false,
 		) );
 		$server_terms = $this->server_replica_storage->get_terms( $this->taxonomy );
-		
-		error_log( print_r( $terms ) );
-		error_log( print_r( $server_terms ) );
-
 		$this->assertEquals( $terms, $server_terms );
 	}
 
@@ -77,34 +72,46 @@ class WP_Test_Jetpack_New_Sync_Terms extends WP_Test_Jetpack_New_Sync_Base {
 		$this->assertEquals( $terms, $server_terms );
 ;	}
 
-//	public function test_append_categories_is_synced() {
-//
-//		$term_object = wp_insert_term( 'foo', 'category' );
-//		$term_object_bar = wp_insert_term( 'bar', 'category' );
-//
-//		wp_set_post_categories( $this->post_id, array( $term_object['term_id'] ), true );
-//		$this->client->do_sync();
-//		$terms = get_categories( array(
-//			'hide_empty' => false,
-//		) );
-//
-//		$post_terms = get_the_category( $this->post_id );
-//
-//		 error_log(print_r( $terms, 1 ) );
-//		 error_log(print_r( $post_terms, 1 ) );
-//
-//		$server_terms = $this->server_replica_storage->get_terms( 'category' );
-//		$server_post_terms = $this->server_replica_storage->get_the_terms( $this->post_id, 'category' );
-//
-//		error_log(print_r( $terms, 1 ) );
-//		error_log(print_r( $post_terms, 1 ) );
-//		// $this->assertEquals( $terms, $server_terms );
-//		// $this->assertEquals( $server_post_terms, $post_terms );
-//	}
-	public function test_over_ride_existing_categories_is_synced() {}
-	public function test_delete_existing_categories_is_synced() {}
+	public function test_added_terms_to_post_is_synced() {
+		$anther_term = wp_insert_term( 'mouse', $this->taxonomy );
+		wp_set_post_terms( $this->post_id, array( $anther_term['term_id'] ), $this->taxonomy, false );
+		$this->client->do_sync();
 
-	public function test_update_term_data_is_synced() {}
-	public function test_delete_term_data_is_synced() {}
-	// Todo
+		$object_terms = get_the_terms ( $this->post_id, $this->taxonomy );
+		$server_object_terms = $this->server_replica_storage->get_the_terms( $this->post_id, $this->taxonomy );
+		$this->assertEquals( $object_terms, $server_object_terms );
+	}
+
+	public function test_added_terms_to_post_is_synced_appended() {
+		$anther_term = wp_insert_term( 'mouse', $this->taxonomy );
+		wp_set_post_terms( $this->post_id, array( $anther_term['term_id'] ), $this->taxonomy, false );
+
+		$anther_term_2 = wp_insert_term( 'cat', $this->taxonomy );
+		wp_set_post_terms( $this->post_id, array( $anther_term_2['term_id'] ), $this->taxonomy, true );
+		$this->client->do_sync();
+
+		$object_terms = get_the_terms ( $this->post_id, $this->taxonomy );
+		$server_object_terms = $this->server_replica_storage->get_the_terms( $this->post_id, $this->taxonomy );
+		$server_object_terms = array_reverse( $server_object_terms );
+		$this->assertEquals( $object_terms, $server_object_terms );
+	}
+
+	public function test_deleted_terms_to_post_is_synced() {
+		$anther_term = wp_insert_term( 'mouse', $this->taxonomy );
+		wp_set_post_terms( $this->post_id, array( $anther_term['term_id'] ), $this->taxonomy, false );
+
+		$anther_term_2 = wp_insert_term( 'cat', $this->taxonomy );
+		wp_set_post_terms( $this->post_id, array( $anther_term_2['term_id'] ), $this->taxonomy, true );
+
+		wp_remove_object_terms( $this->post_id, array( $anther_term_2['term_id'] ), $this->taxonomy );
+		$this->client->do_sync();
+
+		$object_terms = get_the_terms ( $this->post_id, $this->taxonomy );
+
+		$server_object_terms = $this->server_replica_storage->get_the_terms( $this->post_id, $this->taxonomy );
+		$server_object_terms = array_reverse( $server_object_terms );
+
+		$this->assertEquals( $object_terms, $server_object_terms );
+	}
+
 }

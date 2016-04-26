@@ -171,6 +171,22 @@ class Jetpack_Sync_Server_Replicator {
 				list( $term_id, $tt_id, $taxonomy, $deleted_term_or_error  ) = $args;
 				$this->store->delete_term( $term_id, $taxonomy );
 				break;
+
+			case 'set_object_terms':
+				if ( ! isset( $args[4] ) ) { // in case $append is not set.
+					$args[4] = false;
+				}
+				list( $object_id, $terms, $tt_ids, $taxonomy, $append ) = $args;
+				$this->store->update_object_terms( $object_id, $taxonomy, $terms, $append );
+				foreach ( $terms as $term_id ) {
+					$this->store->update_term_count( $taxonomy, $term_id );
+				}
+
+				break;
+			case 'deleted_term_relationships':
+				list( $object_id, $tt_ids ) = $args;
+				$this->store->delete_object_terms( $object_id, $tt_ids );
+				break;
 			
 			// users
 			case 'jetapack_sync_save_user':

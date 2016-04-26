@@ -20,6 +20,7 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 	private $callable;
 	private $network_options;
 	private $terms;
+	private $object_terms;
 	private $users;
 
 	function __construct() {
@@ -38,6 +39,7 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 		$this->callable = array();
 		$this->network_options = array();
 		$this->terms = array();
+		$this->object_terms = array();
 		$this->users = array();
 	}
 
@@ -272,39 +274,84 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	// terms
-	function get_terms( $taxonomy ) {
+	function get_terms( $taxonomy, $term_id = null ) {
 		return isset( $this->terms[ $taxonomy ] ) ? $this->terms[ $taxonomy ] : array();
 	}
+
+	function get_term( $taxonomy, $term_id, $is_term_id = true ) {
+		if ( ! isset( $this->terms[ $taxonomy ] ) ) {
+			return array();
+		}
+		foreach ( $this->terms[ $taxonomy ] as $term_object ) {
+			if ( $term_id === $term_object->term_id && $is_term_id ) {
+				return $term_object;
+			}
+			if( $term_id === $term_object->term_taxonomy_id && ! $is_term_id ) {
+
+			}
+
+		}
+		return array();
+	}
+
 	function get_the_terms( $object_id, $taxonomy ) {
-		// TODO: Implement get_the_terms() method.
-		$this->object_terms[$taxonomy][$object_id];
+		$terms = array();
+		foreach( $this->object_terms[ $taxonomy ][ $object_id ] as $term_id ) {
+			$terms[] = $this->get_term( $taxonomy, $term_id );
+		}
+		return $terms;
 	}
 
 	function update_term( $taxonomy, $term_object ) {
-		if( ! isset( $this->terms[ $taxonomy ] ) ) {
+		if ( ! isset( $this->terms[ $taxonomy ] ) ) {
 			// empty 
 			$this->terms[ $taxonomy ] = array();
 			$this->terms[ $taxonomy ][] = $term_object;
 		}
 		$terms = array();
+		$action = 'none';
+
 		// Note: array_map might be better for this but didn't want to write a callback
 		foreach ( $this->terms[ $taxonomy ] as $saved_term_object ) {
 			if ( $saved_term_object->term_id === $term_object->term_id ) {
 				$terms[] = $term_object;
+				$action = 'updated';
 			} else {
 				$terms[] = $saved_term_object;
 			}
 		}
+		if ( $action !== 'updated' ) {
+			// we should add the tem since we didn't update it.
+			$terms[] = $term_object;
+		}
 		$this->terms[ $taxonomy ] = $terms;
+	}
+
+	public function update_term_count( $taxonomy, $term_id ) {
+		$term_object = $this->get_term( $taxonomy, $term_id );
+		$count = 0;
+
+		foreach ( $this->object_terms[ $taxonomy ] as $object_id => $term_ids ) {
+			foreach( $term_ids as $saved_term_id ) {
+				if ( $saved_term_id === $term_id ) {
+					$count++;
+				}
+			}
+		}
+		if ( empty( $term_object ) ) {
+			return;
+		}
+		$term_object->count = $count;
+		$this->update_term( $taxonomy, $term_object );
 	}
 
 	function delete_term( $term_id, $taxonomy ) {
 		if ( ! isset( $this->terms[ $taxonomy ] ) ) {
 			// empty
 			$this->terms[ $taxonomy ] = array();
-			$this->terms[ $taxonomy ][] = $term_object;
 		}
 		$terms = array();
+		
 		// Note: array_map might be better for this but didn't want to write a callback
 		foreach ( $this->terms[ $taxonomy ] as $saved_term_object ) {
 			if ( $saved_term_object->term_id !== $term_id ) {
@@ -316,6 +363,34 @@ class Jetpack_Sync_Server_Replicastore implements iJetpack_Sync_Replicastore {
 			unset( $this->terms[ $taxonomy ] );
 		}
  	}
+
+	function delete_object_terms( $object_id, $tt_ids ) {
+		$saved_data = array();
+		foreach( $this->object_terms as $taxonomy => $taxonomy_object_terms ) {
+
+			foreach ( $taxonomy_object_terms as $saved_object_id => $term_ids ) {
+					foreach( $term_ids as $saved_term_id ) {
+					$term = $this->get_term( $taxonomy, $saved_term_id );
+
+					if ( isset( $term->term_taxonomy_id ) && ! in_array( $term->term_taxonomy_id, $tt_ids ) && $object_id === $saved_object_id ) {
+						$saved_data[ $taxonomy ] [ $saved_object_id ][] = $saved_term_id;
+					} else if( isset( $term->term_taxonomy_id ) && in_array( $term->term_taxonomy_id, $tt_ids ) && $object_id === $saved_object_id ) {
+						$this->update_term_count( $taxonomy, $term->term_id );
+					}
+				}
+			}
+		}
+
+		$this->object_terms = $saved_data;
+	}
+
+	function update_object_terms( $object_id, $taxonomy, $terms, $append ) {
+		if ( $append ) {
+			$this->object_terms[ $taxonomy ][ $object_id ] = array_merge ( $this->object_terms[ $taxonomy ][ $object_id ], $terms );
+		} else {
+			$this->object_terms[ $taxonomy ][ $object_id ] = $terms;
+		}
+	}
 
 	function get_user( $user_id ) {
 		return isset( $this->users[ $user_id ] ) ? $this->users[ $user_id ] : false;
