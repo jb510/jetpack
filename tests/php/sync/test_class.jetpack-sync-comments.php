@@ -49,8 +49,7 @@ class WP_Test_Jetpack_New_Sync_Comments extends WP_Test_Jetpack_New_Sync_Base {
 
 	public function test_trash_comment_trashes_data() {
 		$this->assertEquals( 1, $this->server_replica_storage->comment_count( 'approve' ) );
-
-		wp_delete_comment( $this->comment );
+		wp_delete_comment( $this->comment->comment_ID );
 
 		$this->client->do_sync();
 
@@ -61,7 +60,7 @@ class WP_Test_Jetpack_New_Sync_Comments extends WP_Test_Jetpack_New_Sync_Base {
 	public function test_delete_comment_deletes_data() {
 		$this->assertEquals( 1, $this->server_replica_storage->comment_count( 'approve' ) );
 
-		wp_delete_comment( $this->comment, true );
+		wp_delete_comment( $this->comment->comment_ID, true );
 
 		$this->client->do_sync();
 
@@ -70,7 +69,7 @@ class WP_Test_Jetpack_New_Sync_Comments extends WP_Test_Jetpack_New_Sync_Base {
 	}
 
 	public function test_wp_trash_comment() {
-		wp_trash_comment( $this->comment );
+		wp_trash_comment( $this->comment->comment_ID );
 
 		$this->client->do_sync();
 
@@ -79,14 +78,14 @@ class WP_Test_Jetpack_New_Sync_Comments extends WP_Test_Jetpack_New_Sync_Base {
 	}
 
 	public function test_wp_untrash_comment() {
-		wp_trash_comment( $this->comment );
+		wp_trash_comment( $this->comment->comment_ID );
 
 		$this->client->do_sync();
 
 		$this->assertEquals( 0, $this->server_replica_storage->comment_count( 'approve' ) );
 		$this->assertEquals( 1, $this->server_replica_storage->comment_count( 'trash' ) );
 
-		wp_untrash_comment( $this->comment );
+		wp_untrash_comment( $this->comment->comment_ID );
 
 		$this->client->do_sync();
 
@@ -95,7 +94,7 @@ class WP_Test_Jetpack_New_Sync_Comments extends WP_Test_Jetpack_New_Sync_Base {
 	}
 
 	public function test_wp_spam_comment() {
-		wp_spam_comment( $this->comment );
+		wp_spam_comment( $this->comment->comment_ID );
 
 		$this->client->do_sync();
 
