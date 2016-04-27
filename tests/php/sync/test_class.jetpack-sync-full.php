@@ -351,7 +351,8 @@ class WP_Test_Jetpack_New_Sync_Full extends WP_Test_Jetpack_New_Sync_Base {
 	}
 
 	function set_transients( $transient, $value, $expiration ) {
-		if ( preg_match( '/^jetpack_full_sync_progress/', $transient ) ) {
+		$transient = str_replace( '_transient_', '', $transient );
+		if ( preg_match( '/^jetpack_full_sync_progress.*$/', $transient ) ) {
 			$this->transients[ $transient ] = $value;
 		}
 	}
